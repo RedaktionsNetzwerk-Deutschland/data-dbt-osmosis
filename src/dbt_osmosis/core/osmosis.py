@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from io import StringIO
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
@@ -37,6 +38,13 @@ class YamlHandler(ruamel.yaml.YAML):
         self.default_flow_style = False
         self.encoding = os.getenv("DBT_OSMOSIS_ENCODING", "utf-8")
 
+    def dump(self, content, destination_stream) -> None: 
+        buf = StringIO()
+        super().dump(content, buf)
+
+        with open(destination_stream, 'w', encoding='UTF-8') as fd:
+            buf.seek(0)
+            fd.write(buf.getvalue())
 
 @dataclass
 class SchemaFileLocation:
