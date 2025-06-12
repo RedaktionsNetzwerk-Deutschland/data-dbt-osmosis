@@ -1541,11 +1541,14 @@ def _sync_doc_section(
             if merged[k] in (None, [], {}):
                 merged.pop(k)
 
+        if merged.get("config", {'meta': {}, 'tags': []}) == {'meta': {}, 'tags': []}:
+            merged.pop("config", None)
+
         if _get_setting_for_node(
             "output-to-lower", node, name, fallback=context.settings.output_to_lower
         ):
             merged["name"] = merged["name"].lower()
-
+        logger.info(merged)
         incoming_columns.append(merged)
 
     doc_section["columns"] = incoming_columns
@@ -2103,6 +2106,36 @@ def _transform_op(
         return TransformOperation(func, name=name or func.__name__)
 
     return decorator
+
+
+@_transform_op("Add defined docs")
+def add_defined_docs(
+    context: YamlRefactorContext, node: ResultNode | None = None
+) -> None:    
+    if node is None:
+        logger.info(":wave: Adding doc strings with defined docs ...")
+        for _ in context.pool.map(
+            partial(add_defined_docs, context),
+            (n for _, n in _iter_candidate_nodes(context)),
+        ):
+            ...
+        return
+
+    logger.info(":dna: Adding doc strings with defined docs for => %s", node.unique_id)
+
+    # List possible docs
+    available_docs = [doc.name for doc in context.project.manifest.docs.values()]
+
+    # If not documented right now and has doc --> add {{ doc("name") }}
+    for name, node_column in node.columns.items():
+        if (node_column.description is None or node_column.description == '') and name in available_docs:
+            updated_metadata = {"description": '{{ doc("' + name + '")}}' }
+        else:
+            updated_metadata = {}
+        logger.debug(
+            ":star2: Inheriting updated metadata => %s for column => %s", updated_metadata, name
+        )
+        node.columns[name] = node_column.replace(**updated_metadata)
 
 
 @_transform_op("Inherit Upstream Column Knowledge")
