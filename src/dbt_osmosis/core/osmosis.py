@@ -104,6 +104,7 @@ from dbt_osmosis.core.transforms import (
     sort_columns_as_in_database,
     synchronize_data_types,
     synthesize_missing_documentation_with_openai,
+    add_defined_docs
 )
 
 # Note: process_node is imported in sql_operations.py where it's used
@@ -171,4 +172,5 @@ __all__ = [
     "_COLUMN_LIST_CACHE",
     "_YAML_BUFFER_CACHE",
     "SqlCompileRunner",
+    "add_defined_docs"
 ]

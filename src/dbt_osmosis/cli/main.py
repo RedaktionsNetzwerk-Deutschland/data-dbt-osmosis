@@ -30,6 +30,7 @@ from dbt_osmosis.core.osmosis import (
     sort_columns_as_configured,
     synchronize_data_types,
     synthesize_missing_documentation_with_openai,
+    add_defined_docs
 )
 
 T = t.TypeVar("T")
@@ -325,6 +326,7 @@ def refactor(
     transform = (
         inject_missing_columns
         >> remove_columns_not_in_database
+        >> add_defined_docs
         >> inherit_upstream_column_knowledge
         >> sort_columns_as_configured
         >> synchronize_data_types

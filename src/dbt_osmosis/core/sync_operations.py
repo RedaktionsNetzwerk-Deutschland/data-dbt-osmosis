@@ -67,11 +67,18 @@ def _sync_doc_section(context: t.Any, node: ResultNode, doc_section: dict[str, t
             if merged[k] in (None, [], {}):
                 merged.pop(k)
 
+        if merged.get("config", {'meta': {}, 'tags': []}) == {'meta': {}, 'tags': []}:
+            merged.pop("config", None)
+
+        if "doc_blocks" in merged:
+            merged.pop("doc_blocks", None)
+
         if _get_setting_for_node(
             "output-to-lower", node, name, fallback=context.settings.output_to_lower
         ):
             merged["name"] = merged["name"].lower()
 
+        print(list(merged.keys()))
         incoming_columns.append(merged)
 
     doc_section["columns"] = incoming_columns
