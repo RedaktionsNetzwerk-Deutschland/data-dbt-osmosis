@@ -245,6 +245,7 @@ from dbt_osmosis.core.transforms import (
     suggest_improved_documentation,
     synchronize_data_types,
     synthesize_missing_documentation_with_openai,
+    add_defined_docs
 )
 
 # Voice learning and AI co-pilot
